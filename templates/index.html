@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Pen Tablet</title>
+  <style>
+    body {
+      position: absolute;
+      margin: 0;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      font-family: sans-serif;
+      font-size: 13px;
+      padding: 1em;
+      box-sizing: border-box;
+    }
+    h1 {
+      margin-top: 0;
+      color: #ccc;
+    }
+    canvas {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      left: 0;
+      top: 0;
+    }
+  </style>
+</head>
+<body>
+  <div id="force"></div>
+  <div id="touches"></div>
+  <canvas>Sorry, your browser is too old for this.</canvas>
+  </div>
+<script>
+const websocket = new WebSocket("{{.}}")
+
+const $force = document.querySelectorAll('#force')[0]
+const $touches = document.querySelectorAll('#touches')[0]
+const canvas = document.querySelectorAll('canvas')[0]
+let isMousedown = false
+
+canvas.width = window.innerWidth * 2
+canvas.height = window.innerHeight * 2
+
+for (const ev of ["touchstart"]) {
+  canvas.addEventListener(ev, function (e) {
+    if (e.touches[0].touchType === 'direct') return
+    let x, y;
+    if (e.touches && e.touches[0] && typeof e.touches[0]["force"] !== "undefined") {
+      x = e.touches[0].pageX * 2
+      y = e.touches[0].pageY * 2
+    }
+
+    const event = {type: "touchstart", "x" : x, "y" : y}
+    websocket.send(JSON.stringify(event))
+
+    isMousedown = true
+  })
+}
+
+for (const ev of ['touchmove']) {
+  canvas.addEventListener(ev, function (e) {
+    if (!isMousedown) return
+    e.preventDefault()
+
+    let x, y
+    if (e.touches && e.touches[0] && typeof e.touches[0]["force"] !== "undefined") {
+      x = e.touches[0].pageX * 2
+      y = e.touches[0].pageY * 2
+    }
+
+    const event = {type: "touchmove", "x" : x, "y" : y}
+    websocket.send(JSON.stringify(event))
+  })
+}
+
+for (const ev of ['touchend', 'touchleave']) {
+  canvas.addEventListener(ev, function (e) {
+    let x, y;
+
+    if (e.touches && e.touches[0] && typeof e.touches[0]["force"] !== "undefined") {
+      x = e.touches[0].pageX * 2
+      y = e.touches[0].pageY * 2
+    }
+
+    const event = {type: "touchend", "x" : x, "y" : y}
+    websocket.send(JSON.stringify(event))
+
+    isMousedown = false
+  })
+};
+</script>
+    </body>
+</html>

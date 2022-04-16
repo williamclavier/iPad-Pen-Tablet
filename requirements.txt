@@ -1,3 +1,0 @@
-mouse==0.7.1
-PyDirectInput==1.0.4
-websockets==10.2
