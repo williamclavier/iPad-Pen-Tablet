@@ -2,6 +2,11 @@
 
 This runs a webserver that can be connected to on the local network via the browser of the iPad. With the Apple Pencil, you will be able to control the mouse on your computer. This can be used for playing games or for photo/video editing.
 
+## Installation
+```batch
+go mod tidy
+```
+
 ## Running
 ```batch
 # To run without configuration
